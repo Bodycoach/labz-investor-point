@@ -103,6 +103,10 @@
     .edit-toolbar.hidden{display:none}
     .editing [data-editable="true"]{outline:2px dashed rgba(207,181,100,.55);outline-offset:4px;cursor:text;border-radius:6px}
     .editing [data-editable="true"]:focus{outline:2px solid #cfb564;background:rgba(207,181,100,.12)}
+    .editing .editable-block-target{position:relative}
+    .editing .editable-block-target.active-block{outline:2px solid rgba(16,132,116,.28);outline-offset:6px;border-radius:14px}
+    .block-resize-handle{display:none;position:absolute;right:-10px;bottom:-10px;width:22px;height:22px;border-radius:999px;background:linear-gradient(135deg,var(--olive),var(--lime));box-shadow:0 6px 18px rgba(0,0,0,.18);cursor:nwse-resize;z-index:40;border:2px solid #fff}
+    .editing .editable-block-target.active-block .block-resize-handle{display:block}
     .password-screen{position:fixed;inset:0;z-index:9999;background:rgba(8,9,7,.78);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;padding:24px}
     .password-card{width:min(520px,100%);background:#fff;border-radius:28px;padding:34px;border:1px solid rgba(23,25,19,.08);box-shadow:var(--shadow-lg)}
     .password-card h1{font-family:var(--font-serif);font-size:2.4rem;line-height:1.05;margin:14px 0 8px}.password-card p{color:var(--muted)}
@@ -345,6 +349,8 @@
     const SHARED_LOAD_URL=`https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:${SHARED_EVENT_TYPE}`;
     let isEditing=false;
     let activeEditable=null;
+    let activeBlock=null;
+    let resizeState=null;
     function unlock(){passwordScreen.style.display='none';app.classList.remove('hidden');editToolbar.classList.remove('hidden');sessionStorage.setItem('labz-investor-point-unlocked','1')}
     if(sessionStorage.getItem('labz-investor-point-unlocked')==='1') unlock();
     passwordForm.addEventListener('submit',e=>{e.preventDefault();if(passwordInput.value===SITE_PASSWORD){passwordError.textContent='';unlock()}else{passwordError.textContent='Mot de passe incorrect.'}});
@@ -469,9 +475,66 @@
     }
     function applyFontSize(value){ if(!activeEditable || !value) return; activeEditable.style.fontSize=value; updateAlignButtons(); }
     function applyTextColor(value){ if(!activeEditable || !value) return; activeEditable.style.color=value; updateAlignButtons(); }
-    function getEditableBlock(el){ return el.closest('.card, .feedback, .section-media-placeholder, .timeline-row, .video-shell, .metric, .section-header') || el; }
-    function applyBlockWidth(value){ if(!activeEditable || !value) return; const block=getEditableBlock(activeEditable); block.style.maxWidth=value; block.style.width='100%'; block.style.marginLeft='auto'; block.style.marginRight='auto'; updateAlignButtons(); }
-    function applyBlockPadding(value){ if(!activeEditable || !value) return; const block=getEditableBlock(activeEditable); block.style.padding=value; updateAlignButtons(); }
+    function getEditableBlock(el){ return el.closest('.card, .feedback, .section-media-placeholder, .timeline-row, .video-shell, .metric, .section-header, .hero-grid > div') || el; }
+    function syncBlockHandle(block){
+      if(!block) return;
+      block.classList.add('editable-block-target');
+      if(!block.querySelector('.block-resize-handle')){
+        const handle=document.createElement('button');
+        handle.type='button';
+        handle.className='block-resize-handle';
+        handle.title='Redimensionner le bloc';
+        handle.addEventListener('mousedown',startResize);
+        block.appendChild(handle);
+      }
+    }
+    function setActiveBlock(block){
+      document.querySelectorAll('.editable-block-target.active-block').forEach(el=>el.classList.remove('active-block'));
+      activeBlock=block;
+      if(activeBlock){ syncBlockHandle(activeBlock); activeBlock.classList.add('active-block'); }
+      updateAlignButtons();
+    }
+    function applyBlockWidth(value){ if(!activeEditable || !value) return; const block=getEditableBlock(activeEditable); block.style.maxWidth=value; block.style.width='100%'; block.style.marginLeft='auto'; block.style.marginRight='auto'; syncBlockHandle(block); updateBlockTypography(block); updateAlignButtons(); }
+    function applyBlockPadding(value){ if(!activeEditable || !value) return; const block=getEditableBlock(activeEditable); block.style.padding=value; syncBlockHandle(block); updateAlignButtons(); }
+    function updateBlockTypography(block){
+      if(!block) return;
+      const width=block.getBoundingClientRect().width || parseFloat(block.style.maxWidth) || 760;
+      const scale=Math.max(0.88, Math.min(1.22, width/760));
+      block.querySelectorAll('h1,h2,h3,p,li,strong,small').forEach(el=>{
+        const base=el.dataset.baseFontSize || window.getComputedStyle(el).fontSize;
+        if(!el.dataset.baseFontSize) el.dataset.baseFontSize=base;
+        const px=parseFloat(base);
+        if(Number.isFinite(px)) el.style.fontSize=`${(px*scale).toFixed(1)}px`;
+      });
+    }
+    function startResize(e){
+      e.preventDefault(); e.stopPropagation();
+      const block=e.currentTarget.parentElement;
+      setActiveBlock(block);
+      const rect=block.getBoundingClientRect();
+      resizeState={block,startX:e.clientX,startY:e.clientY,startWidth:rect.width,startHeight:rect.height};
+      document.addEventListener('mousemove',onResize);
+      document.addEventListener('mouseup',stopResize);
+    }
+    function onResize(e){
+      if(!resizeState) return;
+      const {block,startX,startY,startWidth,startHeight}=resizeState;
+      const nextWidth=Math.max(280,startWidth+(e.clientX-startX));
+      const nextHeight=Math.max(80,startHeight+(e.clientY-startY));
+      block.style.width='100%';
+      block.style.maxWidth=`${Math.round(nextWidth)}px`;
+      block.style.minHeight=`${Math.round(nextHeight)}px`;
+      block.style.marginLeft='auto';
+      block.style.marginRight='auto';
+      updateBlockTypography(block);
+    }
+    function stopResize(){
+      if(!resizeState) return;
+      resizeState=null;
+      document.removeEventListener('mousemove',onResize);
+      document.removeEventListener('mouseup',stopResize);
+      saveEditableContent();
+    }
     function hideActiveBlock(){ if(!activeEditable) return; getEditableBlock(activeEditable).classList.add('hidden-by-editor'); saveEditableContent(); }
     function showAllBlocks(){ document.querySelectorAll('.hidden-by-editor').forEach(el=>el.classList.remove('hidden-by-editor')); saveEditableContent(); }
     function setEditMode(state){
@@ -480,13 +543,14 @@
       document.querySelectorAll('[data-editable="true"]').forEach(el=>el.contentEditable=state?'true':'false');
       editToggle.textContent=state?'Quitter édition':'Mode édition';
       alignTools.classList.toggle('hidden',!state);
-      if(!state){activeEditable=null;updateAlignButtons();}
+      if(!state){activeEditable=null;setActiveBlock(null);updateAlignButtons();}
     }
     setupEditableNodes();
     loadEditableContent();
     document.querySelectorAll('[data-editable="true"]').forEach(el=>{
-      el.addEventListener('focus',()=>{activeEditable=el;updateAlignButtons();});
-      el.addEventListener('click',()=>{if(isEditing){activeEditable=el;updateAlignButtons();}});
+      syncBlockHandle(getEditableBlock(el));
+      el.addEventListener('focus',()=>{activeEditable=el;setActiveBlock(getEditableBlock(el));updateAlignButtons();});
+      el.addEventListener('click',()=>{if(isEditing){activeEditable=el;setActiveBlock(getEditableBlock(el));updateAlignButtons();}});
     });
     alignLeft.addEventListener('click',()=>applyAlignment('left'));
     alignCenter.addEventListener('click',()=>applyAlignment('center'));
