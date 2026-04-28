@@ -90,11 +90,12 @@
     .footer-note{font-size:.94rem;color:var(--muted)}
     .edit-toolbar{position:fixed;right:18px;bottom:18px;z-index:130;display:flex;gap:10px;flex-wrap:wrap;max-width:min(92vw,760px);align-items:center}
     .edit-toolbar .btn{box-shadow:var(--shadow-md)}
-    .align-tools{display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(255,255,255,.92);border:1px solid rgba(35,35,35,.10);border-radius:14px;box-shadow:var(--shadow-md)}
+    .align-tools{display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(255,255,255,.92);border:1px solid rgba(35,35,35,.10);border-radius:14px;box-shadow:var(--shadow-md);flex-wrap:wrap}
     .align-tools.hidden{display:none}
     .align-label{font-size:.78rem;color:var(--muted);font-weight:600}
-    .align-btn{appearance:none;border:1px solid rgba(35,35,35,.12);background:#fff;color:var(--text);padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .align-btn,.tool-select{appearance:none;border:1px solid rgba(35,35,35,.12);background:#fff;color:var(--text);padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer}
     .align-btn.active{background:linear-gradient(135deg,rgba(16,132,116,.12),rgba(207,181,100,.18));border-color:rgba(207,181,100,.55)}
+    .editing [data-editable="true"][data-hidden-block="true"], .hidden-by-editor{display:none !important}
     .edit-toolbar.hidden{display:none}
     .editing [data-editable="true"]{outline:2px dashed rgba(207,181,100,.55);outline-offset:4px;cursor:text;border-radius:6px}
     .editing [data-editable="true"]:focus{outline:2px solid #cfb564;background:rgba(207,181,100,.12)}
@@ -287,6 +288,25 @@
       <button class="align-btn" id="alignLeft" type="button">Gauche</button>
       <button class="align-btn" id="alignCenter" type="button">Centré</button>
       <button class="align-btn" id="alignRight" type="button">Droite</button>
+      <button class="align-btn" id="toggleBold" type="button">Gras</button>
+      <select class="tool-select" id="fontSizeSelect">
+        <option value="">Taille</option>
+        <option value="0.9rem">Petit</option>
+        <option value="1rem">Normal</option>
+        <option value="1.2rem">Moyen</option>
+        <option value="1.5rem">Grand</option>
+        <option value="2rem">Très grand</option>
+      </select>
+      <select class="tool-select" id="textColorSelect">
+        <option value="">Couleur</option>
+        <option value="#232323">Noir</option>
+        <option value="#787878">Gris</option>
+        <option value="#cfb564">Or</option>
+        <option value="#108474">Vert</option>
+        <option value="#060606">Noir profond</option>
+      </select>
+      <button class="align-btn" id="hideBlock" type="button">Masquer bloc</button>
+      <button class="align-btn" id="showBlocks" type="button">Réafficher blocs</button>
     </div>
     <button class="btn btn-primary" id="editToggle" type="button">Mode édition</button>
     <button class="btn btn-secondary" id="saveEdits" type="button">Sauvegarder</button>
@@ -308,6 +328,11 @@
     const alignLeft=document.getElementById('alignLeft');
     const alignCenter=document.getElementById('alignCenter');
     const alignRight=document.getElementById('alignRight');
+    const toggleBold=document.getElementById('toggleBold');
+    const fontSizeSelect=document.getElementById('fontSizeSelect');
+    const textColorSelect=document.getElementById('textColorSelect');
+    const hideBlock=document.getElementById('hideBlock');
+    const showBlocks=document.getElementById('showBlocks');
     const EDIT_KEY='labz-investor-point-editable-content-v1';
     let isEditing=false;
     let activeEditable=null;
@@ -361,7 +386,7 @@
     }
     function saveEditableContent(){
       const payload={};
-      document.querySelectorAll('[data-editable="true"]').forEach(el=>{payload[el.dataset.editId]=el.innerHTML;});
+      document.querySelectorAll('[data-editable="true"]').forEach(el=>{payload[el.dataset.editId]={html:el.innerHTML,style:el.getAttribute('style')||'',hidden:el.classList.contains('hidden-by-editor')}});
       localStorage.setItem(EDIT_KEY,JSON.stringify(payload));
     }
     function loadEditableContent(){
@@ -369,22 +394,44 @@
       if(!raw) return;
       try{
         const payload=JSON.parse(raw);
-        document.querySelectorAll('[data-editable="true"]').forEach(el=>{if(payload[el.dataset.editId]!==undefined) el.innerHTML=payload[el.dataset.editId];});
+        document.querySelectorAll('[data-editable="true"]').forEach(el=>{
+          const saved=payload[el.dataset.editId];
+          if(saved===undefined) return;
+          if(typeof saved==='string'){ el.innerHTML=saved; return; }
+          if(saved.html!==undefined) el.innerHTML=saved.html;
+          if(saved.style!==undefined) el.setAttribute('style', saved.style);
+          el.classList.toggle('hidden-by-editor', !!saved.hidden);
+        });
       }catch(e){}
     }
     function updateAlignButtons(){
       const current=(activeEditable?.style.textAlign)||window.getComputedStyle(activeEditable||document.body).textAlign;
-      [alignLeft,alignCenter,alignRight].forEach(btn=>btn.classList.remove('active'));
+      [alignLeft,alignCenter,alignRight,toggleBold].forEach(btn=>btn.classList.remove('active'));
       if(!activeEditable) return;
       if(current==='left' || current==='start') alignLeft.classList.add('active');
       else if(current==='center') alignCenter.classList.add('active');
       else if(current==='right' || current==='end') alignRight.classList.add('active');
+      const weight=activeEditable.style.fontWeight || window.getComputedStyle(activeEditable).fontWeight;
+      if(weight==='700' || weight==='800' || weight==='bold') toggleBold.classList.add('active');
+      fontSizeSelect.value=activeEditable.style.fontSize || '';
+      textColorSelect.value=activeEditable.style.color || '';
     }
     function applyAlignment(value){
       if(!activeEditable) return;
       activeEditable.style.textAlign=value;
       updateAlignButtons();
     }
+    function toggleBoldStyle(){
+      if(!activeEditable) return;
+      const current=activeEditable.style.fontWeight || window.getComputedStyle(activeEditable).fontWeight;
+      activeEditable.style.fontWeight=(current==='700' || current==='800' || current==='bold') ? '400' : '700';
+      updateAlignButtons();
+    }
+    function applyFontSize(value){ if(!activeEditable || !value) return; activeEditable.style.fontSize=value; updateAlignButtons(); }
+    function applyTextColor(value){ if(!activeEditable || !value) return; activeEditable.style.color=value; updateAlignButtons(); }
+    function getEditableBlock(el){ return el.closest('.card, .feedback, .section-media-placeholder, .timeline-row, .video-shell, .metric, .section-header') || el; }
+    function hideActiveBlock(){ if(!activeEditable) return; getEditableBlock(activeEditable).classList.add('hidden-by-editor'); saveEditableContent(); }
+    function showAllBlocks(){ document.querySelectorAll('.hidden-by-editor').forEach(el=>el.classList.remove('hidden-by-editor')); saveEditableContent(); }
     function setEditMode(state){
       isEditing=state;
       document.body.classList.toggle('editing',state);
@@ -402,6 +449,11 @@
     alignLeft.addEventListener('click',()=>applyAlignment('left'));
     alignCenter.addEventListener('click',()=>applyAlignment('center'));
     alignRight.addEventListener('click',()=>applyAlignment('right'));
+    toggleBold.addEventListener('click',()=>toggleBoldStyle());
+    fontSizeSelect.addEventListener('change',e=>applyFontSize(e.target.value));
+    textColorSelect.addEventListener('change',e=>applyTextColor(e.target.value));
+    hideBlock.addEventListener('click',()=>hideActiveBlock());
+    showBlocks.addEventListener('click',()=>showAllBlocks());
     editToggle.addEventListener('click',()=>setEditMode(!isEditing));
     saveEdits.addEventListener('click',()=>{saveEditableContent();setEditMode(false);saveEdits.textContent='Sauvegardé';setTimeout(()=>saveEdits.textContent='Sauvegarder',1800)});
     resetEdits.addEventListener('click',()=>{if(confirm('Supprimer tes modifications locales ?')){localStorage.removeItem(EDIT_KEY);window.location.reload();}});
