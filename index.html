@@ -374,8 +374,8 @@
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
     const toolbarCollapse=document.getElementById('toolbarCollapse');
-    const EDIT_KEY='labz-investor-point-editable-content-v7';
-    const SHARED_EVENT_TYPE='editor-save-v7';
+    const EDIT_KEY='labz-investor-point-editable-content-v8';
+    const SHARED_EVENT_TYPE='editor-save-v8';
     const SHARED_SAVE_URL='https://webhook.site/0a3481ec-9561-4eec-ac9c-d859cb36c4c6';
     const SHARED_LOAD_URL=`https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:${SHARED_EVENT_TYPE}`;
     let isEditing=false;
@@ -435,7 +435,7 @@
         const cardIndex=card ? Math.max(0, sameTypeInSection.indexOf(card)) : 0;
         const tag=el.tagName.toLowerCase();
         const siblingTypeIndex=[...el.parentElement.children].filter(n=>n.tagName===el.tagName).indexOf(el);
-        el.dataset.editId=`v7|${section}|${cardType}|${cardIndex}|${tag}|${siblingTypeIndex}`;
+        el.dataset.editId=`v8|${section}|${cardType}|${cardIndex}|${tag}|${siblingTypeIndex}`;
       });
     }
     function collectEditablePayload(){
