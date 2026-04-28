@@ -299,11 +299,38 @@
     if(sessionStorage.getItem('labz-investor-point-unlocked')==='1') unlock();
     passwordForm.addEventListener('submit',e=>{e.preventDefault();if(passwordInput.value===SITE_PASSWORD){passwordError.textContent='';unlock()}else{passwordError.textContent='Mot de passe incorrect.'}});
 
-    function createFeedbackForm(container,section){container.innerHTML=`<h4>Axe d'amélioration / problématiques</h4><p>Votre retour peut être transmis avec identification, section concernée et niveau de priorité.</p><div class="form-grid"><input data-field="name" placeholder="Nom" /><input data-field="company" placeholder="Société / fonds" /><input data-field="email" placeholder="Email" /><select data-field="priority"><option>Priorité faible</option><option>Priorité moyenne</option><option>Priorité élevée</option></select><textarea class="full" data-field="message" rows="5" placeholder="Votre retour / recommandation"></textarea></div><div class="actions"><button class="btn btn-primary" type="button">Envoyer par email</button><button class="btn btn-secondary" type="button">Copier</button></div>`;
+    function createFeedbackForm(container,section){container.innerHTML=`<h4>Axe d'amélioration / problématiques</h4><p>Les investisseurs peuvent laisser leur retour directement ici. Le message est ensuite transmis à Antony par email.</p><div class="form-grid"><input data-field="name" placeholder="Nom" name="name" /><input data-field="company" placeholder="Société / fonds" name="company" /><input data-field="email" placeholder="Email" name="email" /><select data-field="priority" name="priority"><option>Priorité faible</option><option>Priorité moyenne</option><option>Priorité élevée</option></select><textarea class="full" data-field="message" name="message" rows="5" placeholder="Votre retour / recommandation"></textarea></div><div class="actions"><button class="btn btn-primary" type="button">Envoyer le retour</button><button class="btn btn-secondary" type="button">Copier</button></div><div class="footer-note" style="margin-top:10px" data-feedback-status></div>`;
       const [sendBtn,copyBtn]=container.querySelectorAll('button');
+      const statusEl=container.querySelector('[data-feedback-status]');
       const val=f=>container.querySelector(`[data-field="${f}"]`).value.trim();
       const build=()=>[`Point investisseur LABZ`,`Section : ${section}`,`Nom : ${val('name')||'-'}`,`Société / fonds : ${val('company')||'-'}`,`Email : ${val('email')||'-'}`,`Priorité : ${val('priority')||'-'}`,'','Feedback :',val('message')||'-'].join('\n');
-      sendBtn.addEventListener('click',()=>{const subject=encodeURIComponent(`LABZ Investor Point — ${section}`);const body=encodeURIComponent(build());window.location.href=`mailto:antony@arcompany.fr?subject=${subject}&body=${body}`});
+      sendBtn.addEventListener('click',async()=>{
+        if(!val('name')||!val('email')||!val('message')){statusEl.textContent='Merci de renseigner au minimum le nom, l’email et le message.';return;}
+        sendBtn.disabled=true; statusEl.textContent='Envoi en cours…';
+        const body=new FormData();
+        body.append('name', val('name'));
+        body.append('company', val('company'));
+        body.append('email', val('email'));
+        body.append('priority', val('priority'));
+        body.append('message', val('message'));
+        body.append('section', section);
+        body.append('_subject', `LABZ Investor Point — ${section}`);
+        body.append('_captcha', 'false');
+        body.append('_template', 'table');
+        try{
+          const res=await fetch('https://formsubmit.co/ajax/antony.coaching@gmail.com',{method:'POST',body,headers:{'Accept':'application/json'}});
+          const data=await res.json().catch(()=>({success:false}));
+          if(res.ok && (data.success===true || data.message)){
+            statusEl.textContent='Retour envoyé avec succès.';
+            container.querySelectorAll('[data-field]').forEach(el=>{ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; });
+          }else{
+            statusEl.textContent='Envoi impossible pour le moment. Utilisez “Copier” en secours.';
+          }
+        }catch(e){
+          statusEl.textContent='Envoi impossible pour le moment. Utilisez “Copier” en secours.';
+        }
+        sendBtn.disabled=false;
+      });
       copyBtn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(build());copyBtn.textContent='Copié';setTimeout(()=>copyBtn.textContent='Copier',1800)}catch(e){alert('Impossible de copier automatiquement.')}})
     }
     document.querySelectorAll('.feedback-section').forEach(el=>createFeedbackForm(el,el.dataset.section));
