@@ -438,6 +438,12 @@
         return false;
       }
     }
+    function enforceCriticalLabels(){
+      const introEyebrow=document.querySelector('#video .section-eyebrow');
+      if(introEyebrow) introEyebrow.textContent='Introduction';
+      const introNav=document.querySelector('.nav-item[href="#video"] span:last-child');
+      if(introNav) introNav.textContent='Introduction';
+    }
     async function loadEditableContent(){
       let loaded=false;
       try{
@@ -453,10 +459,13 @@
           }
         }
       }catch(e){}
-      if(loaded) return;
-      const raw=localStorage.getItem(EDIT_KEY);
-      if(!raw) return;
-      try{ applyEditablePayload(JSON.parse(raw)); }catch(e){}
+      if(!loaded){
+        const raw=localStorage.getItem(EDIT_KEY);
+        if(raw){
+          try{ applyEditablePayload(JSON.parse(raw)); }catch(e){}
+        }
+      }
+      enforceCriticalLabels();
     }
     function updateAlignButtons(){
       const current=(activeEditable?.style.textAlign)||window.getComputedStyle(activeEditable||document.body).textAlign;
