@@ -62,7 +62,7 @@
     .section-eyebrow::before{content:'';position:absolute;left:18px;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--olive),var(--lime));box-shadow:0 0 0 6px rgba(16,132,116,.08)}
     .section-eyebrow::after{content:'';position:absolute;inset:auto 24px 0 24px;height:2px;background:linear-gradient(90deg,rgba(16,132,116,0),rgba(16,132,116,.55),rgba(207,181,100,.75),rgba(207,181,100,0));opacity:.9}
     .section-title{font-family:var(--font-serif);font-size:clamp(1.5rem,2.4vw,2.2rem);line-height:1.2;margin-top:18px;text-align:center}
-    .section-subtitle{max-width:780px;color:var(--muted);font-size:.98rem;margin:10px auto 0;text-align:center}
+    .section-subtitle{display:none !important;max-width:780px;color:var(--muted);font-size:.98rem;margin:10px auto 0;text-align:center}
     .divider{width:54px;height:2px;background:var(--grad-lime);border-radius:999px;margin:24px auto 0}
     .fade{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}.fade.visible{opacity:1;transform:translateY(0)}
     #accueil{background:linear-gradient(180deg,var(--sand) 0%, var(--sand-2) 100%);display:flex;align-items:flex-start;overflow:hidden;min-height:auto;padding-bottom:40px}
@@ -322,8 +322,8 @@
     const textColorSelect=document.getElementById('textColorSelect');
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
-    const EDIT_KEY='labz-investor-point-editable-content-v3';
-    const SHARED_EVENT_TYPE='editor-save-v3';
+    const EDIT_KEY='labz-investor-point-editable-content-v4';
+    const SHARED_EVENT_TYPE='editor-save-v4';
     const SHARED_SAVE_URL='https://webhook.site/0a3481ec-9561-4eec-ac9c-d859cb36c4c6';
     const SHARED_LOAD_URL=`https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:${SHARED_EVENT_TYPE}`;
     let isEditing=false;
@@ -373,7 +373,7 @@
       const selectors=['.hero-label','.hero-title','.hero-p','.hero-badge','.metric small','.metric strong','.metric span','.section-eyebrow','.section-title','.section-subtitle','.card h3','.card p','.card li','.timeline-row strong','.timeline-row div','.footer-note'];
       document.querySelectorAll(selectors.join(',')).forEach((el,idx)=>{
         el.setAttribute('data-editable','true');
-        el.dataset.editId=`v3-editable-${idx}`;
+        el.dataset.editId=`v4-editable-${idx}`;
       });
     }
     function collectEditablePayload(){
