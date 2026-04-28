@@ -353,8 +353,8 @@
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
     const toolbarCollapse=document.getElementById('toolbarCollapse');
-    const EDIT_KEY='labz-investor-point-editable-content-v6';
-    const SHARED_EVENT_TYPE='editor-save-v6';
+    const EDIT_KEY='labz-investor-point-editable-content-v7';
+    const SHARED_EVENT_TYPE='editor-save-v7';
     const SHARED_SAVE_URL='https://webhook.site/0a3481ec-9561-4eec-ac9c-d859cb36c4c6';
     const SHARED_LOAD_URL=`https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:${SHARED_EVENT_TYPE}`;
     let isEditing=false;
@@ -403,19 +403,18 @@
     document.querySelectorAll('.feedback-section').forEach(el=>createFeedbackForm(el,el.dataset.section));
     createFeedbackForm(document.getElementById('globalFeedbackBox'),'Retour global');
 
-    function buildStableEditId(el,idx){
-      const section=el.closest('section')?.id || 'global';
-      const block=el.closest('.card, .feedback, .timeline-row, .section-header, .video-box, .metric, .hero-grid > div');
-      const blockIndex=block && block.parentElement ? [...block.parentElement.children].filter(child=>child.matches?.('.card, .feedback, .timeline-row, .section-header, .video-box, .metric, div')).indexOf(block) : 0;
-      const tag=el.tagName.toLowerCase();
-      const cls=(el.className||'').toString().split(' ').filter(Boolean).slice(0,2).join('-') || 'node';
-      return `v6-${section}-${tag}-${cls}-${blockIndex}-${idx}`;
-    }
     function setupEditableNodes(){
       const selectors=['.hero-label','.hero-title','.hero-p','.hero-badge','.metric small','.metric strong','.metric span','.section-eyebrow','.section-title','.card h3','.card p','.card li','.timeline-row strong','.timeline-row div','.footer-note'];
       document.querySelectorAll(selectors.join(',')).forEach((el,idx)=>{
         el.setAttribute('data-editable','true');
-        el.dataset.editId=buildStableEditId(el,idx);
+        const section=el.closest('section')?.id || 'global';
+        const card=el.closest('.card, .feedback, .timeline-row, .section-header, .video-box, .metric');
+        const cardType=card ? (card.className || card.tagName.toLowerCase()).toString().split(' ')[0] : 'plain';
+        const sameTypeInSection=[...document.querySelectorAll(`#${section} .${cardType}, #${section} ${cardType}`)].filter(Boolean);
+        const cardIndex=card ? Math.max(0, sameTypeInSection.indexOf(card)) : 0;
+        const tag=el.tagName.toLowerCase();
+        const siblingTypeIndex=[...el.parentElement.children].filter(n=>n.tagName===el.tagName).indexOf(el);
+        el.dataset.editId=`v7|${section}|${cardType}|${cardIndex}|${tag}|${siblingTypeIndex}`;
       });
     }
     function collectEditablePayload(){
@@ -453,25 +452,9 @@
       if(introNav) introNav.textContent='Introduction';
     }
     async function loadEditableContent(){
-      let loaded=false;
-      try{
-        const res=await fetch(SHARED_LOAD_URL,{headers:{'Accept':'application/json'}});
-        const data=await res.json();
-        const content=data?.data?.[0]?.content;
-        if(content){
-          const parsed=JSON.parse(content);
-          if(parsed?.payload){
-            applyEditablePayload(parsed.payload);
-            localStorage.setItem(EDIT_KEY,JSON.stringify(parsed.payload));
-            loaded=true;
-          }
-        }
-      }catch(e){}
-      if(!loaded){
-        const raw=localStorage.getItem(EDIT_KEY);
-        if(raw){
-          try{ applyEditablePayload(JSON.parse(raw)); }catch(e){}
-        }
+      const raw=localStorage.getItem(EDIT_KEY);
+      if(raw){
+        try{ applyEditablePayload(JSON.parse(raw)); }catch(e){}
       }
       enforceCriticalLabels();
     }
