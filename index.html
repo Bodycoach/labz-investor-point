@@ -334,6 +334,8 @@
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
     const EDIT_KEY='labz-investor-point-editable-content-v1';
+    const SHARED_SAVE_URL='https://webhook.site/0a3481ec-9561-4eec-ac9c-d859cb36c4c6';
+    const SHARED_LOAD_URL='https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:editor-save';
     let isEditing=false;
     let activeEditable=null;
     function unlock(){passwordScreen.style.display='none';app.classList.remove('hidden');editToolbar.classList.remove('hidden');sessionStorage.setItem('labz-investor-point-unlocked','1')}
@@ -384,25 +386,53 @@
         if(!el.dataset.editId) el.dataset.editId=`editable-${idx}`;
       });
     }
-    function saveEditableContent(){
+    function collectEditablePayload(){
       const payload={};
       document.querySelectorAll('[data-editable="true"]').forEach(el=>{payload[el.dataset.editId]={html:el.innerHTML,style:el.getAttribute('style')||'',hidden:el.classList.contains('hidden-by-editor')}});
-      localStorage.setItem(EDIT_KEY,JSON.stringify(payload));
+      return payload;
     }
-    function loadEditableContent(){
+    function applyEditablePayload(payload){
+      if(!payload) return;
+      document.querySelectorAll('[data-editable="true"]').forEach(el=>{
+        const saved=payload[el.dataset.editId];
+        if(saved===undefined) return;
+        if(typeof saved==='string'){ el.innerHTML=saved; return; }
+        if(saved.html!==undefined) el.innerHTML=saved.html;
+        if(saved.style!==undefined) {
+          if(saved.style) el.setAttribute('style', saved.style); else el.removeAttribute('style');
+        }
+        el.classList.toggle('hidden-by-editor', !!saved.hidden);
+      });
+    }
+    async function saveEditableContent(){
+      const payload=collectEditablePayload();
+      localStorage.setItem(EDIT_KEY,JSON.stringify(payload));
+      try{
+        await fetch(SHARED_SAVE_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'editor-save',savedAt:new Date().toISOString(),payload})});
+        return true;
+      }catch(e){
+        return false;
+      }
+    }
+    async function loadEditableContent(){
+      let loaded=false;
+      try{
+        const res=await fetch(SHARED_LOAD_URL,{headers:{'Accept':'application/json'}});
+        const data=await res.json();
+        const content=data?.data?.[0]?.content;
+        if(content){
+          const parsed=JSON.parse(content);
+          if(parsed?.payload){
+            applyEditablePayload(parsed.payload);
+            localStorage.setItem(EDIT_KEY,JSON.stringify(parsed.payload));
+            loaded=true;
+          }
+        }
+      }catch(e){}
+      if(loaded) return;
       const raw=localStorage.getItem(EDIT_KEY);
       if(!raw) return;
-      try{
-        const payload=JSON.parse(raw);
-        document.querySelectorAll('[data-editable="true"]').forEach(el=>{
-          const saved=payload[el.dataset.editId];
-          if(saved===undefined) return;
-          if(typeof saved==='string'){ el.innerHTML=saved; return; }
-          if(saved.html!==undefined) el.innerHTML=saved.html;
-          if(saved.style!==undefined) el.setAttribute('style', saved.style);
-          el.classList.toggle('hidden-by-editor', !!saved.hidden);
-        });
-      }catch(e){}
+      try{ applyEditablePayload(JSON.parse(raw)); }catch(e){}
     }
     function updateAlignButtons(){
       const current=(activeEditable?.style.textAlign)||window.getComputedStyle(activeEditable||document.body).textAlign;
@@ -455,7 +485,7 @@
     hideBlock.addEventListener('click',()=>hideActiveBlock());
     showBlocks.addEventListener('click',()=>showAllBlocks());
     editToggle.addEventListener('click',()=>setEditMode(!isEditing));
-    saveEdits.addEventListener('click',()=>{saveEditableContent();setEditMode(false);saveEdits.textContent='Sauvegardé';setTimeout(()=>saveEdits.textContent='Sauvegarder',1800)});
+    saveEdits.addEventListener('click',async()=>{saveEdits.disabled=true;const ok=await saveEditableContent();setEditMode(false);saveEdits.textContent=ok?'Sauvegardé en ligne':'Sauvegardé localement';setTimeout(()=>saveEdits.textContent='Sauvegarder',2200);saveEdits.disabled=false});
     resetEdits.addEventListener('click',()=>{if(confirm('Supprimer tes modifications locales ?')){localStorage.removeItem(EDIT_KEY);window.location.reload();}});
 
     const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting) entry.target.classList.add('visible')})},{threshold:.12});
