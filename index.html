@@ -94,8 +94,13 @@
     .footer-note{font-size:.94rem;color:var(--muted)}
     .edit-toolbar{position:fixed;right:18px;bottom:18px;z-index:130;display:flex;gap:10px;flex-wrap:wrap;max-width:min(92vw,760px);align-items:center}
     .edit-toolbar .btn{box-shadow:var(--shadow-md)}
-    .align-tools{display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(255,255,255,.92);border:1px solid rgba(35,35,35,.10);border-radius:14px;box-shadow:var(--shadow-md);flex-wrap:wrap}
+    .align-tools{display:flex;gap:8px;align-items:center;padding:16px 14px 12px;background:rgba(255,255,255,.94);border:1px solid rgba(35,35,35,.10);border-radius:14px;box-shadow:var(--shadow-md);flex-wrap:wrap;position:relative}
     .align-tools.hidden{display:none}
+    .toolbar-collapse{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:999px;border:1px solid rgba(35,35,35,.12);background:#fff;cursor:pointer;font-weight:800;color:#232323}
+    .align-tools.collapsed{padding:12px 48px 12px 14px;max-width:220px}
+    .align-tools.collapsed .align-label,
+    .align-tools.collapsed .align-btn,
+    .align-tools.collapsed .tool-select{display:none}
     .align-label{font-size:.78rem;color:var(--muted);font-weight:600}
     .align-btn,.tool-select{appearance:none;border:1px solid rgba(35,35,35,.12);background:#fff;color:var(--text);padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer}
     .align-btn.active{background:linear-gradient(135deg,rgba(16,132,116,.12),rgba(207,181,100,.18));border-color:rgba(207,181,100,.55)}
@@ -279,6 +284,7 @@
 
   <div class="edit-toolbar hidden" id="editToolbar">
     <div class="align-tools hidden" id="alignTools">
+      <button class="toolbar-collapse" id="toolbarCollapse" type="button">↗</button>
       <span class="align-label">Alignement</span>
       <button class="align-btn" id="alignLeft" type="button">Gauche</button>
       <button class="align-btn" id="alignCenter" type="button">Centré</button>
@@ -344,6 +350,7 @@
     const blockPaddingSelect=document.getElementById('blockPaddingSelect');
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
+    const toolbarCollapse=document.getElementById('toolbarCollapse');
     const EDIT_KEY='labz-investor-point-editable-content-v4';
     const SHARED_EVENT_TYPE='editor-save-v4';
     const SHARED_SAVE_URL='https://webhook.site/0a3481ec-9561-4eec-ac9c-d859cb36c4c6';
@@ -352,6 +359,7 @@
     let activeEditable=null;
     let activeBlock=null;
     let resizeState=null;
+    let toolbarCollapsed=false;
     function unlock(){passwordScreen.style.display='none';app.classList.remove('hidden');editToolbar.classList.remove('hidden');sessionStorage.setItem('labz-investor-point-unlocked','1')}
     if(sessionStorage.getItem('labz-investor-point-unlocked')==='1') unlock();
     passwordForm.addEventListener('submit',e=>{e.preventDefault();if(passwordInput.value===SITE_PASSWORD){passwordError.textContent='';unlock()}else{passwordError.textContent='Mot de passe incorrect.'}});
@@ -544,6 +552,7 @@
       document.querySelectorAll('[data-editable="true"]').forEach(el=>el.contentEditable=state?'true':'false');
       editToggle.textContent=state?'Quitter édition':'Mode édition';
       alignTools.classList.toggle('hidden',!state);
+      alignTools.classList.toggle('collapsed',toolbarCollapsed && state);
       if(!state){activeEditable=null;setActiveBlock(null);updateAlignButtons();}
     }
     setupEditableNodes();
@@ -563,6 +572,7 @@
     blockPaddingSelect.addEventListener('change',e=>applyBlockPadding(e.target.value));
     hideBlock.addEventListener('click',()=>hideActiveBlock());
     showBlocks.addEventListener('click',()=>showAllBlocks());
+    toolbarCollapse.addEventListener('click',()=>{toolbarCollapsed=!toolbarCollapsed;alignTools.classList.toggle('collapsed',toolbarCollapsed);toolbarCollapse.textContent=toolbarCollapsed?'↙':'↗';});
     editToggle.addEventListener('click',()=>setEditMode(!isEditing));
     saveEdits.addEventListener('click',async()=>{saveEdits.disabled=true;const ok=await saveEditableContent();setEditMode(false);saveEdits.textContent=ok?'Sauvegardé en ligne':'Sauvegardé localement';setTimeout(()=>saveEdits.textContent='Sauvegarder',2200);saveEdits.disabled=false});
     resetEdits.addEventListener('click',()=>{if(confirm('Supprimer tes modifications locales ?')){localStorage.removeItem(EDIT_KEY);window.location.reload();}});
