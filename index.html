@@ -353,8 +353,8 @@
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
     const toolbarCollapse=document.getElementById('toolbarCollapse');
-    const EDIT_KEY='labz-investor-point-editable-content-v4';
-    const SHARED_EVENT_TYPE='editor-save-v4';
+    const EDIT_KEY='labz-investor-point-editable-content-v5';
+    const SHARED_EVENT_TYPE='editor-save-v5';
     const SHARED_SAVE_URL='https://webhook.site/0a3481ec-9561-4eec-ac9c-d859cb36c4c6';
     const SHARED_LOAD_URL=`https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:${SHARED_EVENT_TYPE}`;
     let isEditing=false;
@@ -404,10 +404,10 @@
     createFeedbackForm(document.getElementById('globalFeedbackBox'),'Retour global');
 
     function setupEditableNodes(){
-      const selectors=['.hero-label','.hero-title','.hero-p','.hero-badge','.metric small','.metric strong','.metric span','.section-eyebrow','.section-title','.section-subtitle','.card h3','.card p','.card li','.timeline-row strong','.timeline-row div','.footer-note'];
+      const selectors=['.hero-label','.hero-title','.hero-p','.hero-badge','.metric small','.metric strong','.metric span','.section-eyebrow','.section-title','.card h3','.card p','.card li','.timeline-row strong','.timeline-row div','.footer-note'];
       document.querySelectorAll(selectors.join(',')).forEach((el,idx)=>{
         el.setAttribute('data-editable','true');
-        el.dataset.editId=`v4-editable-${idx}`;
+        el.dataset.editId=`v5-editable-${idx}`;
       });
     }
     function collectEditablePayload(){
