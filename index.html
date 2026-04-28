@@ -295,6 +295,20 @@
         <option value="#108474">Vert</option>
         <option value="#060606">Noir profond</option>
       </select>
+      <select class="tool-select" id="blockWidthSelect">
+        <option value="">Largeur bloc</option>
+        <option value="100%">Pleine largeur</option>
+        <option value="900px">Large</option>
+        <option value="760px">Moyen</option>
+        <option value="620px">Compact</option>
+      </select>
+      <select class="tool-select" id="blockPaddingSelect">
+        <option value="">Hauteur bloc</option>
+        <option value="16px">Compact</option>
+        <option value="24px">Normal</option>
+        <option value="36px">Aéré</option>
+        <option value="52px">Très aéré</option>
+      </select>
       <button class="align-btn" id="hideBlock" type="button">Masquer bloc</button>
       <button class="align-btn" id="showBlocks" type="button">Réafficher blocs</button>
     </div>
@@ -321,6 +335,8 @@
     const toggleBold=document.getElementById('toggleBold');
     const fontSizeSelect=document.getElementById('fontSizeSelect');
     const textColorSelect=document.getElementById('textColorSelect');
+    const blockWidthSelect=document.getElementById('blockWidthSelect');
+    const blockPaddingSelect=document.getElementById('blockPaddingSelect');
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
     const EDIT_KEY='labz-investor-point-editable-content-v4';
@@ -427,6 +443,7 @@
     }
     function updateAlignButtons(){
       const current=(activeEditable?.style.textAlign)||window.getComputedStyle(activeEditable||document.body).textAlign;
+      const block=activeEditable?getEditableBlock(activeEditable):null;
       [alignLeft,alignCenter,alignRight,toggleBold].forEach(btn=>btn.classList.remove('active'));
       if(!activeEditable) return;
       if(current==='left' || current==='start') alignLeft.classList.add('active');
@@ -436,6 +453,8 @@
       if(weight==='700' || weight==='800' || weight==='bold') toggleBold.classList.add('active');
       fontSizeSelect.value=activeEditable.style.fontSize || '';
       textColorSelect.value=activeEditable.style.color || '';
+      blockWidthSelect.value=block?.style.maxWidth || '';
+      blockPaddingSelect.value=block?.style.padding || '';
     }
     function applyAlignment(value){
       if(!activeEditable) return;
@@ -451,6 +470,8 @@
     function applyFontSize(value){ if(!activeEditable || !value) return; activeEditable.style.fontSize=value; updateAlignButtons(); }
     function applyTextColor(value){ if(!activeEditable || !value) return; activeEditable.style.color=value; updateAlignButtons(); }
     function getEditableBlock(el){ return el.closest('.card, .feedback, .section-media-placeholder, .timeline-row, .video-shell, .metric, .section-header') || el; }
+    function applyBlockWidth(value){ if(!activeEditable || !value) return; const block=getEditableBlock(activeEditable); block.style.maxWidth=value; block.style.width='100%'; block.style.marginLeft='auto'; block.style.marginRight='auto'; updateAlignButtons(); }
+    function applyBlockPadding(value){ if(!activeEditable || !value) return; const block=getEditableBlock(activeEditable); block.style.padding=value; updateAlignButtons(); }
     function hideActiveBlock(){ if(!activeEditable) return; getEditableBlock(activeEditable).classList.add('hidden-by-editor'); saveEditableContent(); }
     function showAllBlocks(){ document.querySelectorAll('.hidden-by-editor').forEach(el=>el.classList.remove('hidden-by-editor')); saveEditableContent(); }
     function setEditMode(state){
@@ -473,6 +494,8 @@
     toggleBold.addEventListener('click',()=>toggleBoldStyle());
     fontSizeSelect.addEventListener('change',e=>applyFontSize(e.target.value));
     textColorSelect.addEventListener('change',e=>applyTextColor(e.target.value));
+    blockWidthSelect.addEventListener('change',e=>applyBlockWidth(e.target.value));
+    blockPaddingSelect.addEventListener('change',e=>applyBlockPadding(e.target.value));
     hideBlock.addEventListener('click',()=>hideActiveBlock());
     showBlocks.addEventListener('click',()=>showAllBlocks());
     editToggle.addEventListener('click',()=>setEditMode(!isEditing));
