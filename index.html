@@ -88,8 +88,13 @@
     input,textarea,select{width:100%;font:inherit;padding:14px 15px;border-radius:12px;border:1px solid rgba(35,35,35,.10);background:rgba(255,255,255,.88);color:var(--text);outline:none}input:focus,textarea:focus,select:focus{border-color:#cfb564;box-shadow:0 0 0 4px rgba(207,181,100,.12)}
     .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.btn{appearance:none;border:0;border-radius:12px;padding:13px 18px;font-weight:700;cursor:pointer;transition:transform .18s ease,opacity .18s ease}.btn:hover{transform:translateY(-1px)}.btn-primary{background:var(--grad-lime);color:#111}.btn-secondary{background:#fff;border:1px solid rgba(23,25,19,.10);color:var(--text)}
     .footer-note{font-size:.94rem;color:var(--muted)}
-    .edit-toolbar{position:fixed;right:18px;bottom:18px;z-index:130;display:flex;gap:10px;flex-wrap:wrap;max-width:min(92vw,520px)}
+    .edit-toolbar{position:fixed;right:18px;bottom:18px;z-index:130;display:flex;gap:10px;flex-wrap:wrap;max-width:min(92vw,760px);align-items:center}
     .edit-toolbar .btn{box-shadow:var(--shadow-md)}
+    .align-tools{display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(255,255,255,.92);border:1px solid rgba(35,35,35,.10);border-radius:14px;box-shadow:var(--shadow-md)}
+    .align-tools.hidden{display:none}
+    .align-label{font-size:.78rem;color:var(--muted);font-weight:600}
+    .align-btn{appearance:none;border:1px solid rgba(35,35,35,.12);background:#fff;color:var(--text);padding:10px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .align-btn.active{background:linear-gradient(135deg,rgba(16,132,116,.12),rgba(207,181,100,.18));border-color:rgba(207,181,100,.55)}
     .edit-toolbar.hidden{display:none}
     .editing [data-editable="true"]{outline:2px dashed rgba(207,181,100,.55);outline-offset:4px;cursor:text;border-radius:6px}
     .editing [data-editable="true"]:focus{outline:2px solid #cfb564;background:rgba(207,181,100,.12)}
@@ -277,6 +282,12 @@
   </div>
 
   <div class="edit-toolbar hidden" id="editToolbar">
+    <div class="align-tools hidden" id="alignTools">
+      <span class="align-label">Alignement</span>
+      <button class="align-btn" id="alignLeft" type="button">Gauche</button>
+      <button class="align-btn" id="alignCenter" type="button">Centré</button>
+      <button class="align-btn" id="alignRight" type="button">Droite</button>
+    </div>
     <button class="btn btn-primary" id="editToggle" type="button">Mode édition</button>
     <button class="btn btn-secondary" id="saveEdits" type="button">Sauvegarder</button>
     <button class="btn btn-secondary" id="resetEdits" type="button">Reset</button>
@@ -293,8 +304,13 @@
     const editToggle=document.getElementById('editToggle');
     const saveEdits=document.getElementById('saveEdits');
     const resetEdits=document.getElementById('resetEdits');
+    const alignTools=document.getElementById('alignTools');
+    const alignLeft=document.getElementById('alignLeft');
+    const alignCenter=document.getElementById('alignCenter');
+    const alignRight=document.getElementById('alignRight');
     const EDIT_KEY='labz-investor-point-editable-content-v1';
     let isEditing=false;
+    let activeEditable=null;
     function unlock(){passwordScreen.style.display='none';app.classList.remove('hidden');editToolbar.classList.remove('hidden');sessionStorage.setItem('labz-investor-point-unlocked','1')}
     if(sessionStorage.getItem('labz-investor-point-unlocked')==='1') unlock();
     passwordForm.addEventListener('submit',e=>{e.preventDefault();if(passwordInput.value===SITE_PASSWORD){passwordError.textContent='';unlock()}else{passwordError.textContent='Mot de passe incorrect.'}});
@@ -356,14 +372,36 @@
         document.querySelectorAll('[data-editable="true"]').forEach(el=>{if(payload[el.dataset.editId]!==undefined) el.innerHTML=payload[el.dataset.editId];});
       }catch(e){}
     }
+    function updateAlignButtons(){
+      const current=(activeEditable?.style.textAlign)||window.getComputedStyle(activeEditable||document.body).textAlign;
+      [alignLeft,alignCenter,alignRight].forEach(btn=>btn.classList.remove('active'));
+      if(!activeEditable) return;
+      if(current==='left' || current==='start') alignLeft.classList.add('active');
+      else if(current==='center') alignCenter.classList.add('active');
+      else if(current==='right' || current==='end') alignRight.classList.add('active');
+    }
+    function applyAlignment(value){
+      if(!activeEditable) return;
+      activeEditable.style.textAlign=value;
+      updateAlignButtons();
+    }
     function setEditMode(state){
       isEditing=state;
       document.body.classList.toggle('editing',state);
       document.querySelectorAll('[data-editable="true"]').forEach(el=>el.contentEditable=state?'true':'false');
       editToggle.textContent=state?'Quitter édition':'Mode édition';
+      alignTools.classList.toggle('hidden',!state);
+      if(!state){activeEditable=null;updateAlignButtons();}
     }
     setupEditableNodes();
     loadEditableContent();
+    document.querySelectorAll('[data-editable="true"]').forEach(el=>{
+      el.addEventListener('focus',()=>{activeEditable=el;updateAlignButtons();});
+      el.addEventListener('click',()=>{if(isEditing){activeEditable=el;updateAlignButtons();}});
+    });
+    alignLeft.addEventListener('click',()=>applyAlignment('left'));
+    alignCenter.addEventListener('click',()=>applyAlignment('center'));
+    alignRight.addEventListener('click',()=>applyAlignment('right'));
     editToggle.addEventListener('click',()=>setEditMode(!isEditing));
     saveEdits.addEventListener('click',()=>{saveEditableContent();setEditMode(false);saveEdits.textContent='Sauvegardé';setTimeout(()=>saveEdits.textContent='Sauvegarder',1800)});
     resetEdits.addEventListener('click',()=>{if(confirm('Supprimer tes modifications locales ?')){localStorage.removeItem(EDIT_KEY);window.location.reload();}});
