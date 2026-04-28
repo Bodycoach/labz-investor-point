@@ -471,6 +471,19 @@
       if(introEyebrow) introEyebrow.textContent='Introduction';
       const introNav=document.querySelector('.nav-item[href="#video"] span:last-child');
       if(introNav) introNav.textContent='Introduction';
+      const q1Section=document.querySelector('#q12025');
+      if(q1Section){
+        const q1Eyebrow=q1Section.querySelector('.section-eyebrow');
+        if(q1Eyebrow) q1Eyebrow.textContent='Q1 2026';
+        const firstTitle=q1Section.querySelector('.card p');
+        if(firstTitle) firstTitle.textContent='VENTE B2C';
+        q1Section.querySelectorAll('p, h2, h3, div').forEach(el=>{
+          const txt=(el.textContent||'').trim();
+          if(txt.includes('Présenter une lecture claire') || txt.includes('Q1 2025')){
+            el.remove();
+          }
+        });
+      }
     }
     async function loadEditableContent(){
       const raw=localStorage.getItem(EDIT_KEY);
