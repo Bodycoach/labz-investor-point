@@ -320,9 +320,10 @@
     const textColorSelect=document.getElementById('textColorSelect');
     const hideBlock=document.getElementById('hideBlock');
     const showBlocks=document.getElementById('showBlocks');
-    const EDIT_KEY='labz-investor-point-editable-content-v1';
+    const EDIT_KEY='labz-investor-point-editable-content-v2';
+    const SHARED_EVENT_TYPE='editor-save-v2';
     const SHARED_SAVE_URL='https://webhook.site/0a3481ec-9561-4eec-ac9c-d859cb36c4c6';
-    const SHARED_LOAD_URL='https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:editor-save';
+    const SHARED_LOAD_URL=`https://webhook.site/token/0a3481ec-9561-4eec-ac9c-d859cb36c4c6/requests?sorting=newest&per_page=1&query=type:${SHARED_EVENT_TYPE}`;
     let isEditing=false;
     let activeEditable=null;
     function unlock(){passwordScreen.style.display='none';app.classList.remove('hidden');editToolbar.classList.remove('hidden');sessionStorage.setItem('labz-investor-point-unlocked','1')}
@@ -395,7 +396,7 @@
       const payload=collectEditablePayload();
       localStorage.setItem(EDIT_KEY,JSON.stringify(payload));
       try{
-        await fetch(SHARED_SAVE_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'editor-save',savedAt:new Date().toISOString(),payload})});
+        await fetch(SHARED_SAVE_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:SHARED_EVENT_TYPE,savedAt:new Date().toISOString(),payload})});
         return true;
       }catch(e){
         return false;
