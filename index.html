@@ -368,7 +368,27 @@
   </div>
 
   <script>
-    const SITE_PASSWORD='LABZ2026';
+    const SITE_PASSWORDS=new Set([
+      'LABZ2026',
+      'degivry381',
+      'boistay948',
+      'bernardhua274',
+      'benjamin612',
+      'dutriez457',
+      'mbholding823',
+      'duverger195',
+      'baldy764',
+      'lesaec286',
+      'boeuf531',
+      'fboistay672',
+      'chkili408',
+      'gamana917',
+      'rduverger352',
+      'groupem2j684',
+      'riddle529',
+      'invergo143',
+      'dubruille761'
+    ]);
     const passwordScreen=document.getElementById('passwordScreen');
     const app=document.getElementById('app');
     const passwordForm=document.getElementById('passwordForm');
@@ -401,7 +421,7 @@
     let toolbarCollapsed=false;
     function unlock(){passwordScreen.style.display='none';app.classList.remove('hidden');editToolbar.classList.remove('hidden');sessionStorage.setItem('labz-investor-point-unlocked','1')}
     if(sessionStorage.getItem('labz-investor-point-unlocked')==='1') unlock();
-    passwordForm.addEventListener('submit',e=>{e.preventDefault();if(passwordInput.value===SITE_PASSWORD){passwordError.textContent='';unlock()}else{passwordError.textContent='Mot de passe incorrect.'}});
+    passwordForm.addEventListener('submit',e=>{e.preventDefault();if(SITE_PASSWORDS.has(passwordInput.value.trim())){passwordError.textContent='';unlock()}else{passwordError.textContent='Mot de passe incorrect.'}});
 
     function createFeedbackForm(container,section){container.innerHTML=`<h4>Retour associé / ${section}</h4><div class="form-grid"><input data-field="name" placeholder="Nom" name="name" /><input data-field="company" placeholder="Société / fonds" name="company" /><input data-field="email" placeholder="Email" name="email" /><select data-field="priority" name="priority"><option>Priorité faible</option><option>Priorité moyenne</option><option>Priorité élevée</option></select><textarea class="full" data-field="message" name="message" rows="5" placeholder="Votre retour / recommandation"></textarea></div><div class="actions"><button class="btn btn-primary" type="button">Envoyer le retour</button><button class="btn btn-secondary" type="button">Copier</button></div><div class="footer-note" style="margin-top:10px" data-feedback-status></div>`;
       const [sendBtn,copyBtn]=container.querySelectorAll('button');
