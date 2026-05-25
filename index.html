@@ -481,25 +481,46 @@
       sendBtn.addEventListener('click',async()=>{
         if(!val('name')||!val('email')||!val('message')){statusEl.textContent='Merci de renseigner au minimum le nom, l’email et le message.';return;}
         sendBtn.disabled=true; statusEl.textContent='Envoi en cours…';
-        const body=new FormData();
-        body.append('name', val('name'));
-        body.append('company', val('company'));
-        body.append('email', val('email'));
-        body.append('priority', val('priority'));
-        body.append('message', val('message'));
-        body.append('section', section);
-        body.append('_subject', `LABZ Investor Point — ${section}`);
-        body.append('_captcha', 'false');
-        body.append('_template', 'table');
         try{
-          const res=await fetch('https://formsubmit.co/ajax/antony.coaching@gmail.com',{method:'POST',body,headers:{'Accept':'application/json'}});
-          const data=await res.json().catch(()=>({success:false}));
-          if(res.ok && (data.success===true || data.message)){
-            statusEl.textContent='Retour envoyé avec succès.';
-            container.querySelectorAll('[data-field]').forEach(el=>{ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; });
-          }else{
-            statusEl.textContent='Envoi impossible pour le moment. Utilisez “Copier” en secours.';
-          }
+          const iframeName=`feedback-target-${Math.random().toString(36).slice(2)}`;
+          const iframe=document.createElement('iframe');
+          iframe.name=iframeName;
+          iframe.style.display='none';
+          document.body.appendChild(iframe);
+
+          const form=document.createElement('form');
+          form.method='POST';
+          form.action='https://formsubmit.co/antony.coaching@gmail.com';
+          form.target=iframeName;
+          form.style.display='none';
+
+          const payload={
+            name: val('name'),
+            company: val('company'),
+            email: val('email'),
+            priority: val('priority'),
+            message: val('message'),
+            section,
+            _subject: `LABZ Investor Point — ${section}`,
+            _captcha: 'false',
+            _template: 'table'
+          };
+
+          Object.entries(payload).forEach(([key,value])=>{
+            const input=document.createElement('input');
+            input.type='hidden';
+            input.name=key;
+            input.value=value;
+            form.appendChild(input);
+          });
+
+          document.body.appendChild(form);
+          form.submit();
+
+          statusEl.textContent='Retour envoyé. Merci — Antony le recevra par email.';
+          container.querySelectorAll('[data-field]').forEach(el=>{ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; });
+
+          setTimeout(()=>{ form.remove(); iframe.remove(); }, 4000);
         }catch(e){
           statusEl.textContent='Envoi impossible pour le moment. Utilisez “Copier” en secours.';
         }
