@@ -473,58 +473,18 @@
     if(sessionStorage.getItem('labz-investor-point-unlocked')==='1') unlock();
     passwordForm.addEventListener('submit',e=>{e.preventDefault();if(SITE_PASSWORDS.has(passwordInput.value.trim())){passwordError.textContent='';unlock()}else{passwordError.textContent='Mot de passe incorrect.'}});
 
-    function createFeedbackForm(container,section){container.innerHTML=`<h4>Retour associé / ${section}</h4><div class="form-grid"><input data-field="name" placeholder="Nom" name="name" /><input data-field="company" placeholder="Société / fonds" name="company" /><input data-field="email" placeholder="Email" name="email" /><select data-field="priority" name="priority"><option>Priorité faible</option><option>Priorité moyenne</option><option>Priorité élevée</option></select><textarea class="full" data-field="message" name="message" rows="5" placeholder="Votre retour / recommandation"></textarea></div><div class="actions"><button class="btn btn-primary" type="button">Envoyer le retour</button><button class="btn btn-secondary" type="button">Copier</button></div><div class="footer-note" style="margin-top:10px" data-feedback-status></div>`;
+    function createFeedbackForm(container,section){container.innerHTML=`<h4>Retour associé / ${section}</h4><div class="form-grid"><input data-field="name" placeholder="Nom" name="name" /><input data-field="company" placeholder="Société / fonds" name="company" /><input data-field="email" placeholder="Email" name="email" /><select data-field="priority" name="priority"><option>Priorité faible</option><option>Priorité moyenne</option><option>Priorité élevée</option></select><textarea class="full" data-field="message" name="message" rows="5" placeholder="Votre retour / recommandation"></textarea></div><div class="actions"><button class="btn btn-primary" type="button">Envoyer par email</button><button class="btn btn-secondary" type="button">Copier</button></div><div class="footer-note" style="margin-top:10px" data-feedback-status></div>`;
       const [sendBtn,copyBtn]=container.querySelectorAll('button');
       const statusEl=container.querySelector('[data-feedback-status]');
       const val=f=>container.querySelector(`[data-field="${f}"]`).value.trim();
       const build=()=>[`Point investisseur LABZ`,`Section : ${section}`,`Nom : ${val('name')||'-'}`,`Société / fonds : ${val('company')||'-'}`,`Email : ${val('email')||'-'}`,`Priorité : ${val('priority')||'-'}`,'','Feedback :',val('message')||'-'].join('\n');
       sendBtn.addEventListener('click',async()=>{
         if(!val('name')||!val('email')||!val('message')){statusEl.textContent='Merci de renseigner au minimum le nom, l’email et le message.';return;}
-        sendBtn.disabled=true; statusEl.textContent='Envoi en cours…';
-        try{
-          const iframeName=`feedback-target-${Math.random().toString(36).slice(2)}`;
-          const iframe=document.createElement('iframe');
-          iframe.name=iframeName;
-          iframe.style.display='none';
-          document.body.appendChild(iframe);
-
-          const form=document.createElement('form');
-          form.method='POST';
-          form.action='https://formsubmit.co/antony.coaching@gmail.com';
-          form.target=iframeName;
-          form.style.display='none';
-
-          const payload={
-            name: val('name'),
-            company: val('company'),
-            email: val('email'),
-            priority: val('priority'),
-            message: val('message'),
-            section,
-            _subject: `LABZ Investor Point — ${section}`,
-            _captcha: 'false',
-            _template: 'table'
-          };
-
-          Object.entries(payload).forEach(([key,value])=>{
-            const input=document.createElement('input');
-            input.type='hidden';
-            input.name=key;
-            input.value=value;
-            form.appendChild(input);
-          });
-
-          document.body.appendChild(form);
-          form.submit();
-
-          statusEl.textContent='Retour envoyé. Merci — Antony le recevra par email.';
-          container.querySelectorAll('[data-field]').forEach(el=>{ if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; });
-
-          setTimeout(()=>{ form.remove(); iframe.remove(); }, 4000);
-        }catch(e){
-          statusEl.textContent='Envoi impossible pour le moment. Utilisez “Copier” en secours.';
-        }
-        sendBtn.disabled=false;
+        const subject=`LABZ Investor Point — ${section}`;
+        const body=build();
+        const mailto=`mailto:antony.coaching@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href=mailto;
+        statusEl.textContent='Votre application email va s’ouvrir avec le message prérempli. Si besoin, utilisez “Copier” en secours.';
       });
       copyBtn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(build());copyBtn.textContent='Copié';setTimeout(()=>copyBtn.textContent='Copier',1800)}catch(e){alert('Impossible de copier automatiquement.')}})
     }
