@@ -117,6 +117,28 @@
     .password-card{width:min(520px,100%);background:#fff;border-radius:28px;padding:34px;border:1px solid rgba(23,25,19,.08);box-shadow:var(--shadow-lg)}
     .password-card h1{font-family:var(--font-serif);font-size:2.4rem;line-height:1.05;margin:14px 0 8px}.password-card p{color:var(--muted)}
     .password-badge{display:inline-block;padding:7px 12px;border-radius:999px;background:rgba(207,181,100,.10);border:1px solid rgba(207,181,100,.18);color:#8e7640;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700}.password-form{display:grid;gap:12px;margin-top:22px}.error{min-height:18px;color:#c64d4d;font-size:.9rem}
+
+    .forecast-card{padding:0;overflow:hidden;border:1px solid rgba(35,35,35,.10)}
+    .forecast-intro{padding:24px 26px 18px;background:linear-gradient(135deg,#fff 0%,#fbfaf4 52%,rgba(16,132,116,.08) 100%);border-bottom:1px solid rgba(35,35,35,.08)}
+    .forecast-intro p{margin:8px 0 0 0;color:#475569;line-height:1.6}
+    .forecast-table-wrap{overflow-x:auto;background:#fff}
+    .forecast-table{width:100%;min-width:1280px;border-collapse:collapse;font-size:.82rem;color:#111827}
+    .forecast-table th{background:#050505;color:#fff;font-weight:900;text-transform:none;letter-spacing:.02em;padding:10px 8px;border:1px solid #1f1f1f;text-align:center;white-space:nowrap}
+    .forecast-table th .coin{display:block;font-size:1rem;line-height:1;margin-bottom:2px;color:#cfb564}
+    .forecast-table td{border:1px solid #d7d7d7;padding:6px 7px;text-align:right;background:#fff;vertical-align:middle;white-space:nowrap}
+    .forecast-table td:first-child,.forecast-table th:first-child{text-align:center;font-weight:800;background:#fafafa;color:#111827}
+    .forecast-table tbody tr:nth-child(n+7):not(.forecast-total-row) td{background:#f0f0f0}
+    .forecast-table .forecast-total-row td{font-weight:900;background:#fff!important;border-top:2px solid #111827}
+    .forecast-input{width:100%;min-width:76px;border:0;background:transparent;text-align:right;font:inherit;font-weight:700;color:#111827;outline:none;padding:2px 3px;border-radius:6px}
+    .forecast-input:focus{background:#fff7d6;box-shadow:0 0 0 2px rgba(207,181,100,.35)}
+    .forecast-output{font-weight:700}
+    .forecast-note{display:block;margin-top:2px;font-size:.66rem;color:#64748b;font-weight:700}
+    .forecast-gain{font-weight:900;border-radius:7px;padding:4px 6px;display:inline-block;min-width:88px;text-align:right}
+    .forecast-gain.negative{background:#f4b6a8;color:#7f1d1d}.forecast-gain.warning{background:#f7c888;color:#7c2d12}.forecast-gain.positive{background:#7cc96f;color:#064e3b}.forecast-gain.neutral{background:#e5e7eb;color:#334155}
+    .forecast-actions{display:flex;flex-wrap:wrap;gap:10px;padding:18px 24px;border-top:1px solid rgba(35,35,35,.08);background:#fbfaf4}
+    .forecast-actions .btn{font-size:.82rem;padding:10px 15px}
+    @media (max-width:920px){.forecast-intro{padding:20px}.forecast-table{font-size:.76rem}.forecast-table th,.forecast-table td{padding:6px 5px}.forecast-actions{padding:14px 18px}}
+
     .hidden{display:none}
     @media (max-width:1100px){.hero-grid,.grid-3,.grid-4{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}.timeline-row{grid-template-columns:1fr}}
     #video{min-height:auto;padding-bottom:26px}.section + .section{padding-top:56px}
@@ -169,6 +191,7 @@
         <a class="nav-item" href="#franchise"><span class="nav-emoji">11</span><span>Franchise</span></a>
         <a class="nav-item" href="#q12025"><span class="nav-emoji">12</span><span>Q1 2026</span></a>
         <a class="nav-item" href="#bilan2025"><span class="nav-emoji">13</span><span>Bilan Année 2025</span></a>
+        <a class="nav-item" href="#previsionnel"><span class="nav-emoji">14</span><span>Prévisionnel</span></a>
         <div class="nav-label">Retour</div>
         <a class="nav-item" href="#feedback-global"><span class="nav-emoji">✉</span><span>Feedback global</span></a>
       </nav>
@@ -345,8 +368,59 @@
 
       <section class="section" id="bilan2025">
         <div class="section-header fade"><div class="section-eyebrow">Bilan Année 2025</div><h2 class="section-title">Section en attente de finalisation.</h2><div class="divider"></div></div>
-        <div class="card fade"><p>- Bilan annuel 2025 en attente<br>- Le bilan sera disponible d'ici mai<br>- Cette section sera rédigée et consolidée en mai ou en juin</p></div>
+        <div class="card fade"><p>- Bilan annuel 2025 en attente<br>- Le bilan et cette partie seront rédigés en juillet<br>- Cette section sera rédigée et consolidée en juillet</p></div>
         <div class="feedback fade feedback-section" data-section="Bilan Année 2025"></div>
+      </section>
+
+
+      <section class="section" id="previsionnel">
+        <div class="section-header fade"><div class="section-eyebrow">Prévisionnel</div><h2 class="section-title">Prévisionnel 2026 modifiable.</h2><div class="divider"></div></div>
+        <div class="card fade forecast-card">
+          <div class="forecast-intro">
+            <h3>Tableau prévisionnel mensuel</h3>
+            <p>Les cellules blanches sont modifiables directement. Les marges, le cumul de marge brute et le gain / perte se recalculent automatiquement dans le navigateur.</p>
+          </div>
+          <div class="forecast-table-wrap">
+            <table class="forecast-table" aria-label="Prévisionnel LABZ 2026 modifiable">
+              <thead>
+                <tr>
+                  <th>2026</th>
+                  <th><span class="coin">💰</span>CA<br>Labz B2C</th>
+                  <th>Taux de marge</th>
+                  <th>MARGE Brute<br>Labz B2C</th>
+                  <th><span class="coin">💰</span>CA<br>CALD</th>
+                  <th>MARGE Brute<br>CALD <span class="forecast-note">35%</span></th>
+                  <th><span class="coin">💰</span>CA<br>Logistique</th>
+                  <th>MARGE Brute<br>Logistique <span class="forecast-note">20%</span></th>
+                  <th><span class="coin">💰</span>CA<br>B2B</th>
+                  <th>MARGE Brute<br>B2B <span class="forecast-note">30%</span></th>
+                  <th>CUMUL<br>MARGE BRUTE</th>
+                  <th>COUT FIXE</th>
+                  <th>GAIN / PERTE</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-forecast-row><td>janvier 26</td><td><input class="forecast-input" data-field="b2c" value="90 718,41 €"></td><td><input class="forecast-input" data-field="rateB2c" value="51,10%"></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value="20 176,37 €"></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value="9 157,36 €"></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="70 000,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>février 26</td><td><input class="forecast-input" data-field="b2c" value="74 205,57 €"></td><td><input class="forecast-input" data-field="rateB2c" value="49,00%"></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value="12 429,81 €"></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value="9 658,96 €"></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="70 000,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>mars 26</td><td><input class="forecast-input" data-field="b2c" value="81 245,03 €"></td><td><input class="forecast-input" data-field="rateB2c" value="47,40%"></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value="7 259,68 €"></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value="10 585,72 €"></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="65 000,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>avril 26</td><td><input class="forecast-input" data-field="b2c" value="89 426,26 €"></td><td><input class="forecast-input" data-field="rateB2c" value="45,80%"></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value="29 960,00 €"></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value="11 200,00 €"></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="65 000,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>mai 26</td><td><input class="forecast-input" data-field="b2c" value="84 462,50 €"></td><td><input class="forecast-input" data-field="rateB2c" value="44,00%"></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value="4 462,00 €"></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value="7 720,00 €"></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="65 000,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>juin 26</td><td><input class="forecast-input" data-field="b2c" value="100 000,00 €"></td><td><input class="forecast-input" data-field="rateB2c" value="41,00%"></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value="20 000,00 €"></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value="15 000,00 €"></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="55 000,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>juillet 26</td><td><input class="forecast-input" data-field="b2c" value=""></td><td><input class="forecast-input" data-field="rateB2c" value=""></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value=""></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value=""></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="54 500,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>août 26</td><td><input class="forecast-input" data-field="b2c" value=""></td><td><input class="forecast-input" data-field="rateB2c" value=""></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value=""></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value=""></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="54 500,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>septembre 26</td><td><input class="forecast-input" data-field="b2c" value=""></td><td><input class="forecast-input" data-field="rateB2c" value=""></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value=""></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value=""></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="54 500,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>octobre 26</td><td><input class="forecast-input" data-field="b2c" value=""></td><td><input class="forecast-input" data-field="rateB2c" value=""></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value=""></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value=""></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="54 500,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>novembre 26</td><td><input class="forecast-input" data-field="b2c" value=""></td><td><input class="forecast-input" data-field="rateB2c" value=""></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value=""></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value=""></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="54 500,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr data-forecast-row><td>décembre 26</td><td><input class="forecast-input" data-field="b2c" value=""></td><td><input class="forecast-input" data-field="rateB2c" value=""></td><td><span class="forecast-output" data-output="mbB2c"></span></td><td><input class="forecast-input" data-field="cald" value=""></td><td><span class="forecast-output" data-output="mbCald"></span></td><td><input class="forecast-input" data-field="log" value=""></td><td><span class="forecast-output" data-output="mbLog"></span></td><td><input class="forecast-input" data-field="b2b" value=""></td><td><span class="forecast-output" data-output="mbB2b"></span></td><td><span class="forecast-output" data-output="cumul"></span></td><td><input class="forecast-input" data-field="fixed" value="54 500,00 €"></td><td><span class="forecast-gain" data-output="gain"></span></td></tr>
+                <tr class="forecast-total-row"><td>Total 2026</td><td><span data-forecast-total="b2c"></span></td><td>48,33%</td><td colspan="10"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="forecast-actions">
+            <button class="btn btn-secondary" id="forecastReset" type="button">Réinitialiser le prévisionnel</button>
+          </div>
+        </div>
+        <div class="feedback fade feedback-section" data-section="Prévisionnel"></div>
       </section>
 
       <section class="section" id="feedback-global">
@@ -710,6 +784,74 @@
     editToggle.addEventListener('click',()=>setEditMode(!isEditing));
     saveEdits.addEventListener('click',async()=>{saveEdits.disabled=true;const ok=await saveEditableContent();setEditMode(false);saveEdits.textContent=ok?'Sauvegardé en ligne':'Sauvegardé localement';setTimeout(()=>saveEdits.textContent='Sauvegarder',2200);saveEdits.disabled=false});
     resetEdits.addEventListener('click',()=>{if(confirm('Supprimer tes modifications locales ?')){localStorage.removeItem(EDIT_KEY);window.location.reload();}});
+
+
+
+    const FORECAST_STORAGE_KEY='labz-investor-forecast-v1';
+    const moneyFormatter=new Intl.NumberFormat('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    function parseForecastNumber(raw){
+      const cleaned=String(raw||'').replace(/\s/g,'').replace(/€/g,'').replace(/%/g,'').replace(/\(/g,'-').replace(/\)/g,'').replace(',', '.');
+      const n=parseFloat(cleaned);
+      return Number.isFinite(n)?n:0;
+    }
+    function formatForecastMoney(value,showDash=true){
+      if(showDash && Math.abs(value)<0.005) return '- €';
+      if(value<0) return `(${moneyFormatter.format(Math.abs(value))}) €`;
+      return `${moneyFormatter.format(value)} €`;
+    }
+    function formatForecastPercent(value){ return `${moneyFormatter.format(value)}%`; }
+    function forecastInput(row,field){ return row.querySelector(`[data-field="${field}"]`); }
+    function forecastOutput(row,field){ return row.querySelector(`[data-output="${field}"]`); }
+    function saveForecastValues(){
+      const payload=[...document.querySelectorAll('[data-forecast-row]')].map(row=>Object.fromEntries([...row.querySelectorAll('.forecast-input')].map(input=>[input.dataset.field,input.value])));
+      localStorage.setItem(FORECAST_STORAGE_KEY,JSON.stringify(payload));
+    }
+    function loadForecastValues(){
+      try{
+        const payload=JSON.parse(localStorage.getItem(FORECAST_STORAGE_KEY)||'null');
+        if(!Array.isArray(payload)) return;
+        document.querySelectorAll('[data-forecast-row]').forEach((row,index)=>{
+          const saved=payload[index]||{};
+          row.querySelectorAll('.forecast-input').forEach(input=>{ if(saved[input.dataset.field]!==undefined) input.value=saved[input.dataset.field]; });
+        });
+      }catch(e){}
+    }
+    function recalcForecast(){
+      let totalB2c=0,totalMbB2c=0;
+      document.querySelectorAll('[data-forecast-row]').forEach(row=>{
+        const b2c=parseForecastNumber(forecastInput(row,'b2c')?.value);
+        const rateB2c=parseForecastNumber(forecastInput(row,'rateB2c')?.value)/100;
+        const cald=parseForecastNumber(forecastInput(row,'cald')?.value);
+        const log=parseForecastNumber(forecastInput(row,'log')?.value);
+        const b2b=parseForecastNumber(forecastInput(row,'b2b')?.value);
+        const fixed=parseForecastNumber(forecastInput(row,'fixed')?.value);
+        const mbB2c=b2c*rateB2c;
+        const mbCald=cald*.35;
+        const mbLog=log*.20;
+        const mbB2b=b2b*.30;
+        const cumul=mbB2c+mbCald+mbLog+mbB2b;
+        const gain=cumul-fixed;
+        totalB2c+=b2c; totalMbB2c+=mbB2c;
+        forecastOutput(row,'mbB2c').textContent=formatForecastMoney(mbB2c);
+        forecastOutput(row,'mbCald').textContent=formatForecastMoney(mbCald);
+        forecastOutput(row,'mbLog').textContent=formatForecastMoney(mbLog);
+        forecastOutput(row,'mbB2b').textContent=formatForecastMoney(mbB2b);
+        forecastOutput(row,'cumul').textContent=formatForecastMoney(cumul);
+        const gainEl=forecastOutput(row,'gain');
+        gainEl.textContent=formatForecastMoney(gain,false);
+        gainEl.classList.remove('negative','warning','positive','neutral');
+        gainEl.classList.add(gain>0?'positive':gain===0?'neutral':gain<-20000?'negative':'warning');
+      });
+      const totalB2cEl=document.querySelector('[data-forecast-total="b2c"]');
+      const totalRateEl=document.querySelector('[data-forecast-total="rateB2c"]');
+      if(totalB2cEl) totalB2cEl.textContent=formatForecastMoney(totalB2c,false);
+      if(totalRateEl) totalRateEl.textContent=totalB2c?formatForecastPercent((totalMbB2c/totalB2c)*100):'-';
+    }
+    loadForecastValues();
+    recalcForecast();
+    document.querySelectorAll('.forecast-input').forEach(input=>input.addEventListener('input',()=>{saveForecastValues();recalcForecast();}));
+    const forecastReset=document.getElementById('forecastReset');
+    if(forecastReset) forecastReset.addEventListener('click',()=>{if(confirm('Réinitialiser les chiffres du prévisionnel sur cet appareil ?')){localStorage.removeItem(FORECAST_STORAGE_KEY);window.location.reload();}});
 
     const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting) entry.target.classList.add('visible')})},{threshold:.12});
     document.querySelectorAll('.fade').forEach(el=>observer.observe(el));
